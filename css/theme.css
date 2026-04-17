@@ -1,0 +1,64 @@
+/**
+ * Design tokens — light default, dark via prefers-color-scheme.
+ * SVG annotation colors stay in page-editor.css (semantic for editing).
+ */
+:root {
+  --vpe-font-sans: system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --vpe-font-mono: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, monospace;
+  --vpe-radius-sm: 6px;
+  --vpe-radius-md: 10px;
+  --vpe-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --vpe-shadow-md: 0 4px 24px rgba(0, 0, 0, 0.08);
+  --vpe-shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.12);
+  --vpe-transition: 0.18s ease;
+
+  --vpe-bg: #f4f5f7;
+  --vpe-bg-elevated: #ffffff;
+  --vpe-surface: #ffffff;
+  --vpe-border: #e2e4e9;
+  --vpe-border-strong: #c5c9d4;
+  --vpe-text: #1a1d26;
+  --vpe-text-muted: #5c6370;
+  --vpe-accent: #2563eb;
+  --vpe-accent-hover: #1d4ed8;
+  --vpe-statusbar-bg: #ffffff;
+  --vpe-statusbar-border: var(--vpe-border);
+  --vpe-drawer-bg: #fafbfc;
+  --vpe-canvas-bg: #2f3d3d;
+  --vpe-input-bg: #ffffff;
+  --vpe-focus-ring: 0 0 0 3px rgba(37, 99, 235, 0.35);
+  --vpe-cursor-bg: rgba(0, 0, 0, 0.65);
+  --vpe-cursor-fg: #fff;
+
+  --vpe-statusbar-h: 40px;
+  --vpe-bottom-pane-h: 150px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --vpe-bg: #12141a;
+    --vpe-bg-elevated: #1a1d26;
+    --vpe-surface: #1e222b;
+    --vpe-border: #2d3340;
+    --vpe-border-strong: #3d4554;
+    --vpe-text: #e8eaef;
+    --vpe-text-muted: #9aa3b2;
+    --vpe-accent: #60a5fa;
+    --vpe-accent-hover: #93c5fd;
+    --vpe-statusbar-bg: #1a1d26;
+    --vpe-statusbar-border: var(--vpe-border);
+    --vpe-drawer-bg: #1e222b;
+    --vpe-canvas-bg: #0d1117;
+    --vpe-input-bg: #12141a;
+    --vpe-focus-ring: 0 0 0 3px rgba(96, 165, 250, 0.35);
+    --vpe-cursor-bg: rgba(255, 255, 255, 0.12);
+    --vpe-cursor-fg: #e8eaef;
+    --vpe-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+    --vpe-shadow-md: 0 4px 24px rgba(0, 0, 0, 0.45);
+    --vpe-shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.55);
+  }
+}
+
+body.drawer-open {
+  --vpe-statusbar-border: var(--vpe-accent);
+}

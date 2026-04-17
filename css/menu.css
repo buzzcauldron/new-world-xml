@@ -46,7 +46,7 @@
   /*--right padding-*/
   height: 2px;
   /*--alto de la 1ª barrita-*/
-  background: gray;
+  background: var(--vpe-text-muted, #888);
 }
 
 .c-hamburger span::before,
@@ -57,7 +57,7 @@
   width: 100%;
   height: 2px;
   /*--alto de la 1ª barrita-*/
-  background-color: gray;
+  background-color: var(--vpe-text-muted, #888);
   content: "";
 }
 
