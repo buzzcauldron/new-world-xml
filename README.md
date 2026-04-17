@@ -2,7 +2,18 @@
 
 A modern visual editor for Page XML files, based on [nw-page-editor](https://github.com/mauvilsa/nw-page-editor).
 
-**Repository:** [https://github.com/buzzcauldron/visual-page-editor](https://github.com/buzzcauldron/visual-page-editor)
+**Upstream lineage:** [nw-page-editor](https://github.com/mauvilsa/nw-page-editor) → [buzzcauldron/visual-page-editor](https://github.com/buzzcauldron/visual-page-editor). If this copy lives in **your own repo**, update the clone URL in the sections below to your remote.
+
+### New repository
+
+After you create an **empty** repository on GitHub or GitLab (no README, no license—avoid merge conflicts on first push), from this repo run:
+
+```bash
+chmod +x ./scripts/publish-new-repo.sh
+./scripts/publish-new-repo.sh git@github.com:YOUR_USER/your-repo-name.git new-world-xml
+```
+
+Use HTTPS or SSH depending on your setup. The script adds a remote named `neworigin` and pushes the branch. Then set the **default branch** and description in the hosting UI.
 
 ## Description
 
@@ -12,7 +23,7 @@ Visual Page Editor is an application for viewing and editing ground truth or pre
 
 - Visual editing of Page XML with live feedback
 - Supports omni:us Pages Format, PRImA Page XML, ALTO v2/v3, TET, Poppler
-- Desktop app (**Electron** on branch `feat/electron-shell`; legacy builds used NW.js) and web-app variant
+- Desktop app (**Electron** on branch `new-world-xml`; legacy builds used NW.js) and web-app variant
 - Keyboard shortcuts (see [KEYBOARD-SHORTCUTS.md](KEYBOARD-SHORTCUTS.md))
 
 ---
