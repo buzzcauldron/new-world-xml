@@ -1,9 +1,17 @@
-# Visual Page Editor
+# New World XML (nwxml)
 
 A modern visual editor for Page XML files, based on [nw-page-editor](https://github.com/mauvilsa/nw-page-editor).
 
 **Repository:** [github.com/buzzcauldron/new-world-xml](https://github.com/buzzcauldron/new-world-xml)  
 **Upstream lineage:** [nw-page-editor](https://github.com/mauvilsa/nw-page-editor) → [buzzcauldron/visual-page-editor](https://github.com/buzzcauldron/visual-page-editor).
+
+### Product: this repo vs visual-page-editor
+
+- **Canonical app:** **new-world-xml** / **nwxml** (npm package `nwxml`, desktop **Electron**). This is the maintained product: HCI shell (`vpe-*` theme tokens), file handling, XSLT/namespace fixes, and tests live here.
+- **visual-page-editor** is the same architectural stack (Electron + bundled `page-canvas` / `page-editor` core) with older chrome (“Visual Page Editor”, flat toolbar/drawer). Use it as an **archive** or sync occasionally if you still publish it—do **not** replace this UI with that HTML/CSS wholesale; parity work is **behavioral** (core JS), not a UI revert.
+- **Version alignment:** this repo is **1.0.0** in `package.json`. The **visual-page-editor** package was **2.0.1** for historical/marketing reasons; bumping nwxml toward **2.x** is optional and should follow a release plan, not a mechanical sync.
+
+**Merge review (vs visual-page-editor core JS):** `js/nw-winstate.js` is unchanged between trees. For `page-canvas.js`, `svg-canvas.js`, `page-editor.js`, and `nw-app.js`, **new-world-xml is the superset** (Electron IPC, drag/drop path resolution, namespace-aware XSLT choice, ARIA/toast UX, etc.); there were **no vpe-only fixes** left to cherry-pick after unified diff review.
 
 ### New repository
 
@@ -19,7 +27,7 @@ Replace `YOUR_USER/your-repo-name` with your GitHub username and repo name. Use 
 
 ## Description
 
-Visual Page Editor is an application for viewing and editing ground truth or predicted information for document processing and text recognition. Editing is done interactively on top of images of scanned documents.
+New World XML (nwxml) is an application for viewing and editing ground truth or predicted information for document processing and text recognition. Editing is done interactively on top of images of scanned documents.
 
 ## Features
 
@@ -36,24 +44,24 @@ Visual Page Editor is an application for viewing and editing ground truth or pre
 git clone https://github.com/buzzcauldron/new-world-xml.git
 cd new-world-xml
 ./scripts/install-desktop.sh
-./bin/visual-page-editor examples/lorem.xml
+./bin/nwxml examples/lorem.xml
 ```
 
 That installs dependencies (and bootstraps Node into `.tools/` if you do not have Node 18+), then opens the sample Page XML with the local **Electron** binary from `npm` (`node_modules/.bin/electron`). No separate native SDK download (unlike the old NW.js flow).
 
-**Windows (PowerShell):** `.\scripts\install-desktop.ps1` then `.\bin\visual-page-editor.ps1 examples\lorem.xml`
+**Windows (PowerShell):** `.\scripts\install-desktop.ps1` then `.\bin\nwxml.ps1 examples\lorem.xml`
 
 Optional: `./scripts/install-desktop.sh --start` runs install and then launches the app in one step. On Windows: `.\scripts\install-desktop.ps1 -Start`.
 
 More detail — Docker desktop image, tests, packaging, Apple Silicon notes: [README-DOCKER.md](README-DOCKER.md), [TESTING.md](TESTING.md), [BUILD.md](BUILD.md), [INSTALL-MAC.md](INSTALL-MAC.md).
 
-**Open multiple files:** `./bin/visual-page-editor examples/lorem.xml examples/lorem2.xml`
+**Open multiple files:** `./bin/nwxml examples/lorem.xml examples/lorem2.xml`
 
 ---
 
 ## Container (Docker)
 
-**Recommended:** from the repo root, use **`./docker-run.sh`** — it builds a version-tagged image (`visual-page-editor:<VERSION>` from [`VERSION`](VERSION)), configures **XQuartz** on macOS or **X11** on Linux, and mounts your project so saves stay on the host. First run builds the image; after upgrades use `./docker-run.sh --build …`.
+**Recommended:** from the repo root, use **`./docker-run.sh`** — it builds a version-tagged image (`nwxml:<VERSION>` from [`VERSION`](VERSION)), configures **XQuartz** on macOS or **X11** on Linux, and mounts your project so saves stay on the host. First run builds the image; after upgrades use `./docker-run.sh --build …`.
 
 ```bash
 ./docker-run.sh examples/lorem.xml
@@ -87,7 +95,7 @@ The `web-app` directory provides a web-based variant for remote use. See that di
 git clone https://github.com/buzzcauldron/new-world-xml.git
 cd new-world-xml
 ./scripts/install-desktop.sh   # or: npm install
-./bin/visual-page-editor
+./bin/nwxml
 # or: npm start
 ```
 

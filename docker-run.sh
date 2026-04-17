@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Recommended way to run Visual Page Editor in Docker with a GUI.
+# Recommended way to run New World XML in Docker with a GUI.
 # Pins the image tag to ./VERSION for reproducible builds (override with VPE_IMAGE).
 
 set -euo pipefail
@@ -8,7 +8,7 @@ show_help() {
   cat <<'EOF'
 Usage: ./docker-run.sh [options] [--] [files...]
 
-  Run the editor in Docker. Builds the image once as visual-page-editor:<VERSION>
+  Run the editor in Docker. Builds the image once as nwxml:<VERSION>
   (from ./VERSION), then runs the container with X11 set up for macOS or Linux.
 
 Options:
@@ -20,7 +20,7 @@ Examples:
   ./docker-run.sh --build examples/lorem.xml
 
 Environment:
-  VPE_IMAGE         Override image name:tag (default: visual-page-editor:<VERSION>)
+  VPE_IMAGE         Override image name:tag (default: nwxml:<VERSION>)
   NWJS_VERSION      Docker build-arg for NW.js SDK (default: 0.109.1)
   DOCKER_DEFAULT_PLATFORM  Default: linux/amd64 (same image on Apple Silicon and Intel)
 
@@ -33,9 +33,9 @@ VERSION_FILE="$SCRIPT_DIR/VERSION"
 NWJS_VERSION="${NWJS_VERSION:-0.109.1}"
 
 VERSION="$(tr -d ' \t\n\r' <"$VERSION_FILE" 2>/dev/null || echo 0.0.0)"
-DEFAULT_IMAGE="visual-page-editor:${VERSION}"
+DEFAULT_IMAGE="nwxml:${VERSION}"
 IMAGE_NAME="${VPE_IMAGE:-$DEFAULT_IMAGE}"
-CONTAINER_NAME="${VPE_CONTAINER_NAME:-visual-page-editor-run}"
+CONTAINER_NAME="${VPE_CONTAINER_NAME:-nwxml-run}"
 
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -77,7 +77,7 @@ if [ "$FORCE_BUILD" = 1 ] || ! docker image inspect "$IMAGE_NAME" &>/dev/null; t
     -t "$IMAGE_NAME" \
     "$SCRIPT_DIR"
   # Convenience tag for tooling that still expects :latest
-  docker tag "$IMAGE_NAME" "visual-page-editor:latest" 2>/dev/null || true
+  docker tag "$IMAGE_NAME" "nwxml:latest" 2>/dev/null || true
 fi
 
 # --- X11 / display ---
@@ -108,7 +108,7 @@ fi
 TTY_OPTS=(-i)
 [ -t 0 ] && [ -t 1 ] && TTY_OPTS=(-it)
 
-echo -e "${GREEN}Starting Visual Page Editor (${IMAGE_NAME})...${NC}"
+echo -e "${GREEN}Starting New World XML (${IMAGE_NAME})...${NC}"
 if [ "$(uname)" = "Darwin" ]; then
   echo -e "${YELLOW}DISPLAY=${DISPLAY}${NC}"
   echo -e "${YELLOW}(Ignore harmless Rosetta messages if shown.)${NC}"

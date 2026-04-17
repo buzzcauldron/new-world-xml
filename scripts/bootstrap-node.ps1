@@ -65,5 +65,5 @@ if ($Start) {
     npm start
 } else {
     Write-Host ""
-    Write-Host "Dependencies installed. Start with: npm start   or   .\bin\visual-page-editor.ps1"
+    Write-Host "Dependencies installed. Start with: npm start   or   .\bin\nwxml.ps1"
 }

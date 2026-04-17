@@ -1,7 +1,7 @@
 /**
- * NW.js app functionality for visual-page-editor.
+ * Desktop app shell for nwxml (New World XML).
  *
- * @version 2.0.0
+ * @version 1.0.0
  * @author buzzcauldron
  * @copyright Copyright(c) 2025, buzzcauldron
  * @license MIT License
@@ -68,7 +68,7 @@ $(window).on('load', function () {
     ver.chromium = process.versions.chromium;
     ver.nw = process.versions.nw;
     ver.xsd = pageCanvas.cfg.pagexmlns;
-    ver['visual-page-editor'] = nw.App.manifest.version;
+    ver.nwxml = nw.App.manifest.version;
     return ver;
   };
 
@@ -168,6 +168,8 @@ $(window).on('load', function () {
   var
   fs = require('fs'),
   path = require('path'),
+  os = require('os'),
+  isElectron = typeof process !== 'undefined' && process.versions && !!process.versions.electron,
   iswin = process.platform.substr(0,3) === 'win',
   osBar = ( iswin ? '\\\\' : '/' ),
   home = process.env.HOME || process.env.USERPROFILE,
@@ -178,6 +180,68 @@ $(window).on('load', function () {
   savingFile = false,
   loadingFile = false,
   prevFileContents = null;
+
+  /// Real filesystem path from a File (Electron 32+ removed File.path; Chromium input.value uses fakepath) ///
+  function pathFromFileObject( f ) {
+    if ( ! f )
+      return '';
+    if ( f.path )
+      return f.path;
+    try {
+      var electron = require( 'electron' );
+      var gu = electron.webUtils && electron.webUtils.getPathForFile;
+      if ( typeof gu === 'function' )
+        return gu.call( electron.webUtils, f ) || '';
+    } catch ( err ) { /* not Electron or webUtils unavailable */ }
+    return '';
+  }
+
+  /// When getPathForFile is empty (rare), copy dropped bytes to a temp file so fs.readFile in loadFile still works ///
+  function loadDroppedFilesViaTemp( fileList, callback ) {
+    var paths = [];
+    var i = 0;
+    function fail( msg ) {
+      if ( typeof callback === 'function' )
+        callback( msg || 'Failed to load dropped file(s)' );
+    }
+    function step() {
+      if ( i >= fileList.length ) {
+        parseArgs( paths );
+        return;
+      }
+      var f = fileList[i];
+      var ext = ( f.name && /\.[^.]+$/.test( f.name ) ) ? f.name.replace( /^.*(\.[^.]+)$/, '$1' ) : '.xml';
+      var tmp = path.join( os.tmpdir(), 'nwxml-drop-' + process.pid + '-' + Date.now() + '-' + i + ext );
+      var reader = new FileReader();
+      reader.onload = function () {
+        try {
+          fs.writeFileSync( tmp, new Uint8Array( reader.result ) );
+          paths.push( tmp );
+        } catch ( err ) {
+          fail( err.message || String( err ) );
+          return;
+        }
+        i += 1;
+        step();
+      };
+      reader.onerror = function () {
+        fail( 'Could not read dropped file' );
+      };
+      reader.readAsArrayBuffer( f );
+    }
+    step();
+  }
+
+  function dataTransferHasFiles( dt ) {
+    if ( ! dt || ! dt.types )
+      return false;
+    var t = dt.types;
+    for ( var j = 0; j < t.length; j++ ) {
+      if ( t[j] === 'Files' )
+        return true;
+    }
+    return false;
+  }
 
   function getFilePath( file, wd ) {
     wd = typeof wd === 'undefined' ? cwd : getFilePath(wd);
@@ -195,14 +259,36 @@ $(window).on('load', function () {
     return false;
   }
 
-  /// Toast for file-expected / file-not-found / warnings: auto-dismiss after 3 seconds (no blocking alert) ///
+  /// Toast for file-expected / file-not-found / warnings: auto-fade after visibleMs (no blocking alert) ///
+  function fadeToastOut( toast, visibleMs ) {
+    visibleMs = typeof visibleMs === 'number' ? visibleMs : 3000;
+    window.setTimeout( function () {
+      var el = toast[0];
+      if ( ! el || ! el.parentNode )
+        return;
+      void el.offsetHeight;
+      toast.addClass( 'file-expected-toast-hide' );
+      var finished = false;
+      var done = function () {
+        if ( finished )
+          return;
+        finished = true;
+        toast.remove();
+      };
+      el.addEventListener( 'transitionend', function onEnd( ev ) {
+        if ( ev.propertyName !== 'opacity' )
+          return;
+        el.removeEventListener( 'transitionend', onEnd );
+        done();
+      } );
+      window.setTimeout( done, 600 );
+    }, visibleMs );
+  }
+
   function showFileExpectedToast( msg ) {
     console.warn(msg);
     var toast = $('<div class="file-expected-toast"></div>').text(msg).appendTo('body');
-    window.setTimeout( function () {
-      toast.addClass('file-expected-toast-hide');
-      window.setTimeout( function () { toast.remove(); }, 300 );
-    }, 3000 );
+    fadeToastOut( toast, 3000 );
   }
   window.showFileExpectedToast = showFileExpectedToast;
 
@@ -211,6 +297,7 @@ $(window).on('load', function () {
     argv = argv.filter(v => v!=='');
     if ( argv.length === 0 )
       return false;
+    console.log( '[vpe] parseArgs:', argv.length, 'path(s)/token(s)', argv.slice( 0, 3 ).join( ' | ' ) + ( argv.length > 3 ? ' …' : '' ) );
     argv = argv.map(v => v.replace(/^\+\+/,'--'));
 
     var
@@ -292,8 +379,8 @@ $(window).on('load', function () {
 
   /// Base window title including version (so user can confirm which build is running) ///
   var baseWindowTitle = (typeof nw !== 'undefined' && nw.App && nw.App.manifest && nw.App.manifest.window) ?
-    ((nw.App.manifest.window.title || 'Visual Page Editor') + ' ' + (nw.App.manifest.version || '')) :
-    ('Visual Page Editor ' + (window.PAGE_EDITOR_VERSION || ''));
+    ((nw.App.manifest.window.title || 'New World XML') + ' ' + (nw.App.manifest.version || '')) :
+    ('New World XML ' + (window.PAGE_EDITOR_VERSION || ''));
   $('title').text(baseWindowTitle);
 
   /// Function for preparing new title for app ///
@@ -325,6 +412,8 @@ $(window).on('load', function () {
     filepath = fileList[fileNum-1],
     newtitle = appTitle(filepath);
 
+    console.log( '[vpe] loadFile: active', fileNum + '/' + fileList.length, filepath );
+
     /// If not xml try load image and create xml ///
     // @todo Proper check that file is page xml, not just by extension
     if ( ! reExt.test(filepath) ) {
@@ -342,7 +431,7 @@ $(window).on('load', function () {
           return false;
         }
 
-        var creator = 'visual-page-editor v'+nw.App.manifest.version;
+        var creator = 'nwxml v'+nw.App.manifest.version;
         fs.writeFileSync( fxml, pageCanvas.newXmlPage( creator, path.basename(filepath), size.width, size.height ) );
       }
 
@@ -363,7 +452,10 @@ $(window).on('load', function () {
         try {
           localStorage.lastOpenFiles = JSON.stringify({ fileList: fileList, fileNum: fileNum });
         } catch ( e ) { /* ignore storage errors */ }
-        pageCanvas.loadXmlPage( data, 'file://'+filepath, function (m) { finishFileLoad(); pageCanvas.closeDocument(); pageCanvas.warning('Problems loading file '+filepath+'\n\n'+m); } );
+        pageCanvas.loadXmlPage( data, 'file://'+filepath, function (m) {
+            console.error( '[vpe] loadXmlPage failed:', filepath, m );
+            finishFileLoad(); pageCanvas.closeDocument(); pageCanvas.warning('Problems loading file '+filepath+'\n\n'+m);
+          } );
         $('title').text(newtitle);
       } );
 
@@ -379,12 +471,33 @@ $(window).on('load', function () {
   function chooseFile( name, callback ) {
     var chooser = $(name);
     chooser.unbind('change');
-    chooser.change( function ( event ) { callback($(this).val()); } );
+    chooser.change( function ( event ) {
+      var target = event.target;
+      var paths = [];
+      if ( target.files && target.files.length ) {
+        for ( var i = 0; i < target.files.length; i++ ) {
+          var p = pathFromFileObject( target.files[i] );
+          if ( p )
+            paths.push( p );
+        }
+      }
+      if ( paths.length === 0 ) {
+        var v = $(target).val();
+        if ( v && ! /fakepath/i.test( v ) )
+          paths = v.split( ';' );
+      }
+      try { target.value = ''; } catch ( e ) { /* ignore */ }
+      if ( paths.length === 0 && target.files && target.files.length ) {
+        showFileExpectedToast( 'Could not resolve a real file path (browser masked it as fakepath). Try drag-and-drop onto the window.' );
+        return;
+      }
+      callback( paths.join( ';' ) );
+    } );
     chooser.trigger('click');
   }
 
-  /// Button to open file – start in current file dir, or last filepath used ///
-  $('#openFile').click( function () {
+  /// Open file: drawer button, Mod+O, and Electron File → Open… (same code path) ///
+  function runOpenFileDialog() {
       var workingdir = null;
       var fileNum = parseInt($('#pageNum').val());
       if ( fileNum > 0 && fileList && fileList.length >= fileNum )
@@ -396,11 +509,33 @@ $(window).on('load', function () {
             workingdir = path.dirname( lastOpen.fileList[0] );
         } catch ( e ) { /* ignore */ }
       }
+      if ( isElectron ) {
+        console.log( '[vpe] runOpenFileDialog: ipc invoke vpe-show-open-dialog', workingdir ? { defaultPath: workingdir } : {} );
+        require( 'electron' ).ipcRenderer.invoke( 'vpe-show-open-dialog', {
+          defaultPath: workingdir || undefined
+        } ).then( function ( result ) {
+          if ( ! result || result.canceled || ! result.filePaths || result.filePaths.length === 0 ) {
+            console.log( '[vpe] open dialog: canceled or empty', result );
+            return;
+          }
+          console.log( '[vpe] open dialog: got', result.filePaths.length, 'path(s)' );
+          parseArgs( result.filePaths, true );
+        } ).catch( function ( err ) {
+          console.error( '[vpe] open dialog: ipc error', err );
+          showFileExpectedToast( err.message || String( err ) );
+        } );
+        return false;
+      }
       if ( workingdir )
         $('#openFileDialog').attr( 'nwworkingdir', workingdir );
       chooseFile( '#openFileDialog', function(files) {
           parseArgs( files.split(';'), true );
         } );
+    }
+
+  $('#openFile').click( function () {
+      runOpenFileDialog();
+      return false;
     } );
 
   /// Defer heavy file loads until after first paint so the window/chrome can appear (hang mitigation) ///
@@ -470,20 +605,43 @@ $(window).on('load', function () {
       var myPageNum = parseInt(window.location.hash.substr(1), 10) || 1;
       if ( n != myPageNum - 1 )
         return;
-      global.argv = argv.replace(/.*visual-page-editor /,'').split(' ');
+      var tokens;
+      if ( Array.isArray(argv) ) {
+        tokens = argv.filter( function ( x ) { return x; } );
+      } else if ( typeof argv === 'string' ) {
+        tokens = argv.replace(/.*(?:visual-page-editor|new-world-xml|nwxml) /,'').split(' ');
+      } else {
+        tokens = [];
+      }
+      global.argv = tokens;
       newWindow();
     } );
 
-  /// Open file(s) when dragged to window ///
-  window.ondragover = function(e) { e.preventDefault(); return false; }; // prevent default behavior from changing page on dropped file
-  window.ondrop = function(e) { e.preventDefault(); return false; }; // NOTE: ondrop events WILL NOT WORK if you do not "preventDefault" in the ondragover event!!
-  $('body')[0].ondrop = function (e) {
+  /// Open file(s) when dragged onto the window (capture phase so SVG/interact does not swallow the drop) ///
+  document.addEventListener( 'dragover', function ( e ) {
+    if ( dataTransferHasFiles( e.dataTransfer ) )
+      e.preventDefault();
+  }, true );
+  document.addEventListener( 'drop', function ( e ) {
+    if ( ! dataTransferHasFiles( e.dataTransfer ) || ! e.dataTransfer.files || e.dataTransfer.files.length === 0 )
+      return;
     e.preventDefault();
+    e.stopPropagation();
     var files = [];
-    for (let i = 0; i < e.dataTransfer.files.length; ++i)
-      files.push(e.dataTransfer.files[i].path);
-    parseArgs(files);
-  };
+    var fi;
+    for ( fi = 0; fi < e.dataTransfer.files.length; fi++ ) {
+      var dp = pathFromFileObject( e.dataTransfer.files[fi] );
+      if ( dp )
+        files.push( dp );
+    }
+    if ( files.length === 0 ) {
+      loadDroppedFilesViaTemp( e.dataTransfer.files, function ( msg ) {
+        showFileExpectedToast( msg );
+      } );
+      return;
+    }
+    parseArgs( files );
+  }, true );
 
   /// Button to save file ///
   $('#saveFile').click( saveFile );
@@ -535,22 +693,57 @@ $(window).on('load', function () {
       if ( fileNum === 0 )
         return;
 
+      var origPath = fileList[fileNum-1];
+      var finishSaveAs = function ( filepath ) {
+        var origDir = path.dirname( origPath );
+        if ( path.resolve( origDir ) !== path.resolve( path.dirname( filepath ) ) )
+          return alert( 'Currently it is only allowed to save in the same directory as the original file. Save aborted.' );
+        if ( ! reExt.test(filepath) )
+          filepath += '.'+xmlExt;
+        fileList[fileNum-1] = loadedFile = filepath;
+        prevFileContents = null;
+        pageCanvas.setChanged();
+        saveFile();
+        $('title').text( appTitle(filepath) );
+      };
+
+      if ( isElectron ) {
+        require( 'electron' ).ipcRenderer.invoke( 'vpe-show-save-dialog', {
+          defaultPath: origPath
+        } ).then( function ( result ) {
+          if ( ! result || result.canceled || ! result.filePath )
+            return;
+          finishSaveAs( result.filePath );
+        } ).catch( function ( err ) {
+          showFileExpectedToast( err.message || String( err ) );
+        } );
+        return false;
+      }
+
       $('#saveFileAsDialog')
         .attr('nwsaveas',fileList[fileNum-1].replace(/.*\//,''))
         .attr('nwworkingdir',workingdir);
 
       chooseFile( "#saveFileAsDialog", function(filepath) {
-          if ( workingdir != filepath.replace(/[^/]+$/,'') )
-            return alert( 'Currently it is only allowed to save in the same directory as the original file. Save aborted.' );
-          if ( ! reExt.test(filepath) )
-            filepath += '.'+xmlExt;
-          fileList[fileNum-1] = loadedFile = filepath;
-          prevFileContents = null;
-          pageCanvas.setChanged();
-          saveFile();
-          $('title').text( appTitle(filepath) );
+          finishSaveAs( filepath );
         } );
     } );
+
+  if ( isElectron ) {
+    var ipcMenu = require( 'electron' ).ipcRenderer;
+    ipcMenu.on( 'vpe-menu-open-file', function () {
+      runOpenFileDialog();
+    } );
+    ipcMenu.on( 'vpe-menu-save', function () {
+      saveFile();
+    } );
+    ipcMenu.on( 'vpe-menu-save-as', function () {
+      $( '#saveFileAs' ).trigger( 'click' );
+    } );
+    ipcMenu.on( 'vpe-menu-print', function () {
+      printCanvas();
+    } );
+  }
 
   /// Setup Page XML schema validation ///
   var
@@ -672,15 +865,15 @@ $(window).on('load', function () {
         return;
     }
 
-    $.ajax({ url: 'https://raw.githubusercontent.com/buzzcauldron/visual-page-editor/main/package.json', dataType: 'json', timeout: 10000 })
+    $.ajax({ url: 'https://raw.githubusercontent.com/buzzcauldron/new-world-xml/main/package.json', dataType: 'json', timeout: 10000 })
       .fail( function () {
-          console.log('Failed to check the latest version of visual-page-editor in github (e.g. network timeout or offline).');
+          console.log('Failed to check the latest version of nwxml on GitHub (e.g. network timeout or offline).');
         } )
       .done( function ( data ) {
           versionCheck.lastDate = new Date();
           if ( versionCheck.lastVersion < data.version && data.version > nw.App.manifest.version ) {
             versionCheck.lastVersion = data.version;
-            alert( 'There is a new version of visual-page-editor available. The github main branch version is '+data.version+' and your running version is '+nw.App.manifest.version+'.' );
+            alert( 'There is a new version of nwxml available. The GitHub main branch version is '+data.version+' and your running version is '+nw.App.manifest.version+'.' );
           }
           versionCheck.lastVersion = data.version;
           localStorage.versionCheck = JSON.stringify(versionCheck);

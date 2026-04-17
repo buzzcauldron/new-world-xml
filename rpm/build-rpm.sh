@@ -1,5 +1,5 @@
 #!/bin/bash
-# Build script for creating RPM package of visual-page-editor with bundled NW.js
+# Build script for creating RPM package of new-world-xml with bundled NW.js
 
 set -e
 
@@ -8,7 +8,7 @@ RPM_DIR="$SCRIPT_DIR"
 PROJECT_ROOT="$(cd "$RPM_DIR/.." && pwd)"
 
 # Configuration (VERSION from VERSION file or package.json)
-NAME="visual-page-editor"
+NAME="nwxml"
 VERSION="$([ -f "$PROJECT_ROOT/VERSION" ] && cat "$PROJECT_ROOT/VERSION" | tr -d '\n')"
 [ -z "$VERSION" ] && VERSION="$(node -p "require('$PROJECT_ROOT/package.json').version" 2>/dev/null)" || true
 VERSION="${VERSION:-1.0.0}"

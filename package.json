@@ -1,7 +1,7 @@
 {
-  "name": "visual-page-editor",
-  "version": "2.0.1",
-  "description": "Modern visual editor for Page XML files - based on nw-page-editor",
+  "name": "nwxml",
+  "version": "1.0.0",
+  "description": "Visual editor for Page XML files (nwxml / New World XML)",
   "engines": {
     "node": ">=18.0.0"
   },
@@ -9,7 +9,7 @@
   "author": "buzzcauldron",
   "license": "MIT",
   "window": {
-    "title": "Visual Page Editor",
+    "title": "New World XML",
     "width": 1200,
     "height": 800,
     "show": true,
@@ -41,6 +41,7 @@
     "test": "npm run review",
     "test:unit": "vitest run",
     "test:launcher": "./scripts/test-electron-launcher.sh",
+    "smoke": "./scripts/smoke-electron-file-dialogs.sh",
     "typecheck": "tsc --noEmit",
     "ts": "tsc",
     "start": "electron .",
@@ -54,8 +55,8 @@
     "dist:dir": "npm run build && electron-builder --dir"
   },
   "build": {
-    "appId": "com.buzzcauldron.visual-page-editor",
-    "productName": "Visual Page Editor",
+    "appId": "com.buzzcauldron.newworldxml",
+    "productName": "New World XML",
     "directories": {
       "output": "dist",
       "buildResources": "build"
@@ -91,9 +92,11 @@
     "url": "https://github.com/buzzcauldron/new-world-xml.git"
   },
   "keywords": [
+    "nwxml",
     "page-xml",
     "document-editor",
     "annotation-tool",
-    "visual-editor"
+    "visual-editor",
+    "new-world-xml"
   ]
 }

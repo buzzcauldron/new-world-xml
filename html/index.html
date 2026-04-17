@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <!--
-  - Main HTML file of visual-page-editor.
+  - Main HTML file of nwxml (New World XML).
   -
-  - @version 2.0.0
+  - @version 1.0.0
   - @author buzzcauldron
   - @copyright Copyright(c) 2025, buzzcauldron
   - @license MIT License
@@ -10,8 +10,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <title>visual-page-editor</title>
-  <script>window.PAGE_EDITOR_VERSION='2.0.0';</script>
+  <title>nwxml</title>
+  <script>window.PAGE_EDITOR_VERSION='1.0.0';</script>
   <link type="text/css" rel="stylesheet" id="page_styles" href="../css/page-editor.css"/>
   <!-- Optional: github-markdown-css for Readme modal (run npm install if missing) -->
   <link type="text/css" rel="stylesheet" href="../node_modules/github-markdown-css/github-markdown.css" onerror="this.remove()"/>
@@ -46,23 +46,34 @@
 </head>
 <body>
   <div id="container">
-    <div id="statusBar">
-      <button id="prevPage" disabled="" class="tooltip-down" data-tooltip="previous document">⇐</button>
-      <div id="pageNumWrap">
-        <input type="text" id="pageNum" class="mousetrap" value="0" disabled=""/>/<span id="totPages">0</span>
+    <div id="statusBar" class="vpe-toolbar" role="toolbar" aria-label="Main toolbar">
+      <div class="vpe-toolbar__clusters">
+        <div class="vpe-toolbar-group vpe-toolbar-group--pages" role="group" aria-label="Documents in folder">
+          <button type="button" id="prevPage" disabled="" class="tooltip-down vpe-icon-btn" data-tooltip="Previous document (Shift: −10)" aria-label="Previous document">◀</button>
+          <div id="pageNumWrap" class="vpe-page-indicator">
+            <label class="vpe-sr-only" for="pageNum">Active document number</label>
+            <input type="text" id="pageNum" class="mousetrap" value="0" disabled="" inputmode="numeric" aria-describedby="pageNumHint"/>
+            <span id="pageNumHint" class="vpe-page-indicator__sep" aria-hidden="true">/</span><span id="totPages" class="vpe-page-indicator__total">0</span>
+          </div>
+          <button type="button" id="nextPage" disabled="" class="tooltip-down vpe-icon-btn" data-tooltip="Next document (Shift: +10)" aria-label="Next document">▶</button>
+        </div>
+        <div class="vpe-toolbar-group vpe-toolbar-group--filter" role="search">
+          <button type="button" id="filterToggle" class="tooltip-down vpe-filter-toggle" data-tooltip="Filter by text, CSS, or XPath (Mod+F)" aria-label="Filter elements" aria-expanded="false" aria-controls="textFilter">
+            <span class="vpe-filter-toggle__icon" aria-hidden="true">🔍</span>
+            <span class="vpe-filter-toggle__label">Filter</span>
+          </button>
+          <div id="textFilter" class="vpe-filter-panel" style="display:none;" role="region" aria-label="Filter query">
+            <label class="vpe-filter-panel__label tooltip-down" data-tooltip="Text, CSS selector, or !xpath">Find</label>
+            <input name="filter" type="text" placeholder="text, CSS, or !xpath" class="mousetrap vpe-filter-panel__input" autocomplete="off"/>
+            <button type="button" id="clearFilter" class="vpe-icon-btn vpe-icon-btn--small" tabindex="-1" aria-label="Clear filter">✕</button>
+          </div>
+        </div>
       </div>
-      <button id="nextPage" disabled="" class="tooltip-down" data-tooltip="next document">⇒</button>
-      <button id="filterToggle" class="tooltip-down" data-tooltip="Filter elements by text or CSS/XPath selector (Mod+F)" aria-label="Toggle filter">&#x1F50D;</button>
-      <div id="textFilter" style="display:none;">
-        <b class="tooltip-down" data-tooltip="Keep only elements containing some text and/or matching css selector&#xa;(e.g. lorem ipsum [id^=reg1]) or if starting with '!' an xpath (e.g.&#xa;!//_:g[*[@value=&quot;printed&quot;]])">Filter:</b>
-        <input name="filter" type="text" placeholder="text or css/xpath selector" class="mousetrap"/>
-        <button id="clearFilter" tabindex="-1">&#x2715;</button>
+      <div id="stateInfo" class="vpe-mode-status tooltip-down" role="status" aria-live="polite" data-tooltip="Active tool and element type. Cycle type: Mod+, Mod+. · Cycle tool: Mod+Shift+, Mod+Shift+.">
+        <span id="modeActive"></span><span id="modeTypeSep" style="display:none;"> › </span><span id="selectedType"></span><span id="modeElemSep"> </span><span id="modeElement" class="muted">-</span><span id="modeIdSep" style="display:none;"> #</span><span id="selectedId"></span>
       </div>
-      <div id="stateInfo" class="tooltip-down" data-tooltip="Cycle element type: Mod+,  /  Mod+.    Cycle tool: Mod+Shift+,  /  Mod+Shift+.">
-        <span id="modeActive"></span><span id="modeTypeSep" style="display:none;"> &rsaquo; </span><span id="selectedType"></span><span id="modeElemSep"> </span><span id="modeElement" class="muted">-</span><span id="modeIdSep" style="display:none;"> #</span><span id="selectedId"></span>
-      </div>
-      <button id="drawerButton" class="menu-toggle c-hamburger c-hamburger--htx">
-        <span>toggle menu</span>
+      <button type="button" id="drawerButton" class="menu-toggle c-hamburger c-hamburger--htx" aria-label="Tools" aria-expanded="false" aria-controls="drawer">
+        <span>Tools</span>
       </button>
     </div>
     <div id="xpg" class="page_container"></div>
@@ -74,21 +85,28 @@
     <span id="cursorX">-</span>,<span id="cursorY">-</span>
   </div>
 
-  <div id="drawer">
+  <div id="drawer" class="vpe-drawer--compact" role="navigation" aria-label="Editor tools">
     <div class="drawer-header">
-      <button type="button" id="drawerClose" class="drawer-close" title="Close menu (Mod+Enter)" aria-label="Close menu">&#215;</button>
+      <h2 class="drawer-title">Tools</h2>
+      <p class="drawer-subtitle">Modes, preferences, and help — use the menu bar for Open, Save, Print, Quit</p>
+      <button type="button" id="drawerClose" class="drawer-close" title="Close tools (Mod+Enter)" aria-label="Close tools">&#215;</button>
     </div>
-    <fieldset id="generalFieldset">
+    <fieldset id="generalFieldset" class="vpe-fieldset vpe-fieldset--file">
+      <legend class="vpe-fieldset-legend">Preferences &amp; help</legend>
       <input style="display:none;" id="openFileDialog" type="file" accept=".xml,image/*" multiple=""/>
       <input style="display:none;" id="saveFileAsDialog" type="file" accept=".xml" nwsaveas=""/>
-      <button id="openFile">Open</button>
-      <button id="saveFile" disabled="">Save</button>
-      <button id="saveFileAs">Save As</button>
-      <button id="print">Print</button>
-      <button id="quit">Quit</button>
-      <button id="openReadme">Readme</button>
-      <button id="openShortcuts" class="tooltip-down" data-tooltip="Mod+?">Shortcuts</button>
-      <button id="pageXmlValidate">Validate against Page XML schema</button>
+      <div class="vpe-drawer-file-proxy" aria-hidden="true">
+        <button type="button" id="openFile" class="vpe-btn vpe-btn--primary" tabindex="-1">Open…</button>
+        <button type="button" id="saveFile" class="vpe-btn vpe-btn--primary" disabled="" tabindex="-1">Save</button>
+        <button type="button" id="saveFileAs" class="vpe-btn" tabindex="-1">Save as…</button>
+        <button type="button" id="print" class="vpe-btn" tabindex="-1">Print</button>
+        <button type="button" id="quit" class="vpe-btn vpe-btn--danger" tabindex="-1">Quit</button>
+      </div>
+      <div class="vpe-btn-row">
+        <button type="button" id="openReadme" class="vpe-btn vpe-btn--ghost">Readme</button>
+        <button type="button" id="openShortcuts" class="tooltip-down vpe-btn vpe-btn--ghost" data-tooltip="Mod+?">Shortcuts</button>
+        <button type="button" id="pageXmlValidate" class="vpe-btn">Validate XML</button>
+      </div>
       <label id="autoSave"><input class="mousetrap" type="checkbox"/> Auto-save</label>
       <label id="openLastFileOnStartup"><input class="mousetrap" type="checkbox" checked=""/> Open last file on startup</label>
       <label id="centerSelected"><input class="mousetrap" type="checkbox"/> Center on selection</label>
@@ -100,34 +118,42 @@
         <button type="button" id="openEditShortcuts" class="link-style">Edit keyboard shortcuts</button>
         <span class="hint-text"> Mod+, Mod+. cycle · Mod+E properties · Tab next · Mod+? all</span>
       </div>
-      <div class="radio-set">
-        <label id="selMode"><input class="mousetrap" type="radio" name="mode2" value="select" checked=""/> Select</label>
-        <label id="baseMode"><input class="mousetrap" type="radio" name="mode2" value="baseline"/> Baseline</label>
-        <label id="coorMode"><input class="mousetrap" type="radio" name="mode2" value="coords"/> Coords</label>
-        <label id="dragMode"><input class="mousetrap" type="radio" name="mode2" value="drag"/> Drag</label>
-        <label id="modifyMode"><input class="mousetrap" type="radio" name="mode2" value="modify"/> Modify</label>
-        <label id="createMode"><input class="mousetrap" type="radio" name="mode2" value="create"/> Create</label>
-        <label id="textMode"><input class="mousetrap" type="checkbox"/> Text editable</label>
-        <label id="editAfterCreate"><input class="mousetrap" type="checkbox"/> Edit mode after create</label>
-      </div>
-      <div class="radio-set">
-        <label id="pageMode"><input class="mousetrap" type="radio" name="mode1" value="page"/> Page</label>
-        <label id="regMode"><input class="mousetrap" type="radio" name="mode1" value="region"/> TextRegion</label>
-        <label id="lineMode"><input class="mousetrap" type="radio" name="mode1" value="line" checked=""/> TextLine</label>
-        <label id="wordMode"><input class="mousetrap" type="radio" name="mode1" value="word"/> Word</label>
-        <label id="glyphMode"><input class="mousetrap" type="radio" name="mode1" value="glyph"/> Glyph</label>
-        <label id="tabMode"><input class="mousetrap" type="radio" name="mode1" value="table"/> Table</label>
-        <label id="groupMode"><input class="mousetrap" type="radio" name="mode1" value="group"/> Group</label>
-        <label id="otherMode" class="tooltip-up" data-tooltip="ImageRegion, SeparatorRegion,&#xa;CustomRegion or any custom type">
-          <input class="mousetrap" type="radio" name="mode1" value="other"/>
-          <input class="mousetrap" list="other-regions" value="ImageRegion"/>
-          <datalist id="other-regions">
-            <option value="ImageRegion"></option>
-            <option value="SeparatorRegion"></option>
-            <option value="CustomRegion"></option>
-          </datalist>
-        </label>
-        <label id="allMode"><input class="mousetrap" type="radio" name="mode1" value="all"/> All</label>
+      <div class="vpe-edit-mode-segments" role="group" aria-label="Tool and element type">
+        <div class="vpe-edit-mode-segment vpe-edit-mode-segment--tool">
+          <span class="vpe-edit-mode-segment__label" id="editModeToolLabel">Tool</span>
+          <div class="radio-set" aria-labelledby="editModeToolLabel">
+            <label id="selMode"><input class="mousetrap" type="radio" name="mode2" value="select" checked=""/> Select</label>
+            <label id="baseMode"><input class="mousetrap" type="radio" name="mode2" value="baseline"/> Baseline</label>
+            <label id="coorMode"><input class="mousetrap" type="radio" name="mode2" value="coords"/> Coords</label>
+            <label id="dragMode"><input class="mousetrap" type="radio" name="mode2" value="drag"/> Drag</label>
+            <label id="modifyMode"><input class="mousetrap" type="radio" name="mode2" value="modify"/> Modify</label>
+            <label id="createMode"><input class="mousetrap" type="radio" name="mode2" value="create"/> Create</label>
+            <label id="textMode"><input class="mousetrap" type="checkbox"/> Text editable</label>
+            <label id="editAfterCreate"><input class="mousetrap" type="checkbox"/> Edit mode after create</label>
+          </div>
+        </div>
+        <div class="vpe-edit-mode-segment vpe-edit-mode-segment--type">
+          <span class="vpe-edit-mode-segment__label" id="editModeTypeLabel">Element type</span>
+          <div class="radio-set" aria-labelledby="editModeTypeLabel">
+            <label id="pageMode"><input class="mousetrap" type="radio" name="mode1" value="page"/> Page</label>
+            <label id="regMode"><input class="mousetrap" type="radio" name="mode1" value="region"/> TextRegion</label>
+            <label id="lineMode"><input class="mousetrap" type="radio" name="mode1" value="line" checked=""/> TextLine</label>
+            <label id="wordMode"><input class="mousetrap" type="radio" name="mode1" value="word"/> Word</label>
+            <label id="glyphMode"><input class="mousetrap" type="radio" name="mode1" value="glyph"/> Glyph</label>
+            <label id="tabMode"><input class="mousetrap" type="radio" name="mode1" value="table"/> Table</label>
+            <label id="groupMode"><input class="mousetrap" type="radio" name="mode1" value="group"/> Group</label>
+            <label id="otherMode" class="tooltip-up" data-tooltip="ImageRegion, SeparatorRegion,&#xa;CustomRegion or any custom type">
+              <input class="mousetrap" type="radio" name="mode1" value="other"/>
+              <input class="mousetrap" list="other-regions" value="ImageRegion"/>
+              <datalist id="other-regions">
+                <option value="ImageRegion"></option>
+                <option value="SeparatorRegion"></option>
+                <option value="CustomRegion"></option>
+              </datalist>
+            </label>
+            <label id="allMode"><input class="mousetrap" type="radio" name="mode1" value="all"/> All</label>
+          </div>
+        </div>
       </div>
     </fieldset>
     <fieldset id="newPropsFieldset">

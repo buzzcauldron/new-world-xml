@@ -87,12 +87,11 @@
     </xsl:attribute>
   </xsl:template>
 
+  <!-- Always emit Unicode as SVG text so baselines/transcriptions stay editable (empty Unicode still needs a <text> for hit-testing). -->
   <xsl:template match="page:Unicode">
-    <xsl:if test="normalize-space() or ../@conf">
-      <text class="{local-name()}">
-        <xsl:apply-templates select="node()"/>
-      </text>
-    </xsl:if>
+    <text class="{local-name()}">
+      <xsl:apply-templates select="node()"/>
+    </text>
   </xsl:template>
 
   <xsl:template match="page:Coords[@points='0,0 0,0']"/>

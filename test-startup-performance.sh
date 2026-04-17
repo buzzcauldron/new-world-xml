@@ -1,7 +1,7 @@
 #!/bin/bash
 # Test script to compare startup performance before and after optimizations
 
-echo "=== Visual Page Editor Startup Performance Test ==="
+echo "=== New World XML Startup Performance Test ==="
 echo ""
 echo "This script will help you compare startup times."
 echo "Open the browser console (DevTools) to see performance metrics."

@@ -1,4 +1,5 @@
-# Visual Page Editor — Electron launcher (Windows).
+# nwxml (New World XML) — Electron launcher (Windows).
+# @version 1.0.0
 param(
     [Parameter(ValueFromRemainingArguments = $true)]
     [string[]]$Arguments

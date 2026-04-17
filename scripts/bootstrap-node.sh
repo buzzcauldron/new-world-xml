@@ -120,5 +120,5 @@ fi
 echo ""
 echo "Dependencies installed. Start the app with:"
 echo "  npm start"
-echo "  ./bin/visual-page-editor [files.xml]"
+echo "  ./bin/nwxml [files.xml]"
 echo "(Use the same terminal so PATH still includes the portable Node, or run this script again before npm commands.)"

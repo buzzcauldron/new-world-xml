@@ -11,6 +11,20 @@
 | **NW.js default alignment** | `npm run check:nw-align` | Read-only; `dependencies.nw` vs launcher/Docker/packaging defaults |
 | **Version sync** | `./scripts/sync-version.sh` | Syncs `VERSION` into package.json and all @version strings |
 
+## Open file flow (Electron)
+
+The app is **not** Java; **Open…** matches typical desktop editors via **HTML button → `ipcRenderer.invoke('vpe-show-open-dialog')` → `dialog.showOpenDialog` in the main process** → `parseArgs` → `loadFile` → `pageCanvas.loadXmlPage`. The **menu bar File → Open…** (and **Ctrl/Cmd+O**) sends `vpe-menu-open-file` to the renderer, which runs the **same** `runOpenFileDialog()` as the drawer.
+
+**Where to look:** [`js/nw-app.js`](js/nw-app.js) (`runOpenFileDialog`, `[vpe]` console logs), [`electron/main.js`](electron/main.js) (`vpe-show-open-dialog`, `[vpe-main]` logs, `buildApplicationMenu`).
+
+**Troubleshooting:**
+
+| Symptom | What to check |
+|--------|----------------|
+| No native file dialog | Terminal: `[vpe-main] vpe-show-open-dialog` errors. DevTools: `[vpe] open dialog: ipc error`. Linux: portal / Wayland issues. |
+| Dialog opens, then nothing / empty canvas | DevTools: `[vpe] parseArgs` / `[vpe] loadFile`. **Canceled** is silent by design (`[vpe] open dialog: canceled or empty`). If paths load but canvas is blank, see XSLT/namespace notes in code review and omni:us PAGE XML (`importSvgXsltChoose` in [`js/page-canvas.js`](js/page-canvas.js)). |
+| Image missing | `imageFilename` in XML must resolve **next to** the XML file (open the XML from the same folder as the image). |
+
 ## Debug all branches thoroughly & relaunch
 
 Run every check, then relaunch the desktop app:

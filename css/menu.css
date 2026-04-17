@@ -35,6 +35,11 @@
 .c-hamburger:focus {
   outline: none;
 }
+.c-hamburger:focus-visible {
+  outline: none;
+  box-shadow: var(--vpe-focus-ring, 0 0 0 3px rgba(37, 99, 235, 0.35));
+  border-radius: var(--vpe-radius-sm, 6px);
+}
 
 .c-hamburger span {
   display: block;

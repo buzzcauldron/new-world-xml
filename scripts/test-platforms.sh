@@ -26,7 +26,7 @@ check() {
 
 echo "=== 1. macOS (native launcher) ==="
 if [ "$(uname -s)" = "Darwin" ]; then
-  check ./bin/visual-page-editor --help
+  check ./bin/nwxml --help
   check [ -f "$ROOT/js/nw-app.js" ]
   check [ -f "$ROOT/html/index.html" ]
 else
@@ -36,22 +36,22 @@ fi
 echo ""
 echo "=== 2. Linux / Docker (container) ==="
 if command -v docker >/dev/null 2>&1; then
-  if ! docker image inspect visual-page-editor:latest &>/dev/null 2>&1; then
+  if ! docker image inspect nwxml:latest &>/dev/null 2>&1; then
     echo "  Building Docker image..."
-    VER="$(tr -d '\n' <"$ROOT/VERSION" 2>/dev/null || echo 2.0.0)"
+    VER="$(tr -d '\n' <"$ROOT/VERSION" 2>/dev/null || echo 1.0.0)"
     if ! docker build --platform linux/amd64 \
       --build-arg NWJS_VERSION="${NWJS_VERSION:-0.109.1}" \
       --build-arg APP_VERSION="$VER" \
       -f Dockerfile.desktop \
-      -t "visual-page-editor:$VER" \
-      -t visual-page-editor:latest \
+      -t "nwxml:$VER" \
+      -t nwxml:latest \
       "$ROOT"; then
       echo "  FAIL: docker build"
       FAIL=$((FAIL + 1))
     fi
   fi
-  if docker image inspect visual-page-editor:latest &>/dev/null 2>&1; then
-    check docker run --rm --platform linux/amd64 -e DISPLAY=:99 visual-page-editor:latest --help
+  if docker image inspect nwxml:latest &>/dev/null 2>&1; then
+    check docker run --rm --platform linux/amd64 -e DISPLAY=:99 nwxml:latest --help
   else
     echo "  SKIP: no image (build failed or skipped)"
   fi
@@ -88,7 +88,7 @@ fi
 # If only Docker failed, still exit 0 so CI/local without Docker can pass
 DOCKER_FAIL_ONLY=0
 if [ "$FAIL" -eq 1 ] && command -v docker >/dev/null 2>&1; then
-  if ! docker image inspect visual-page-editor:latest &>/dev/null 2>&1; then
+  if ! docker image inspect nwxml:latest &>/dev/null 2>&1; then
     DOCKER_FAIL_ONLY=1
   fi
 fi

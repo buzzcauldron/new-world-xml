@@ -33,7 +33,7 @@ test -x "$WORKDIR/node_modules/.bin/nw" || { echo "FAIL: node_modules/.bin/nw no
 
 # Launcher still needs `node` for node_modules/.bin/nw shebang; keep same VERIFY_PATH (no global nw)
 # Capture help first: piping to grep -q closes the pipe early and with pipefail the launcher gets SIGPIPE (141).
-HELP_OUT="$(PATH="$VERIFY_PATH" "$WORKDIR/bin/visual-page-editor" --help 2>&1)" || {
+HELP_OUT="$(PATH="$VERIFY_PATH" "$WORKDIR/bin/nwxml" --help 2>&1)" || {
   echo "FAIL: launcher --help exited non-zero"
   exit 1
 }
@@ -46,4 +46,4 @@ if command -v nw >/dev/null 2>&1; then
   echo "Note: a global 'nw' exists on PATH; still verified launcher uses node_modules when present."
 fi
 
-echo "OK: npm ci placed NW.js under node_modules; ./bin/visual-page-editor --help works (no global nw required)."
+echo "OK: npm ci placed NW.js under node_modules; ./bin/nwxml --help works (no global nw required)."

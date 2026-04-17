@@ -15,7 +15,7 @@ cd "$ROOT"
 
 if [ "${1:-}" = "" ]; then
   echo "Usage: $0 <new-remote-url> [branch]" >&2
-  echo "Example: $0 git@github.com:you/new-world-xml.git new-world-xml" >&2
+  echo "Example: $0 git@github.com:you/new-world-xml.git nwxml" >&2
   exit 1
 fi
 

@@ -22,5 +22,5 @@ if ($Start) {
 }
 else {
     Write-Host ""
-    Write-Host "Install complete. Run: npm start   or   .\bin\visual-page-editor.ps1"
+    Write-Host "Install complete. Run: npm start   or   .\bin\nwxml.ps1"
 }

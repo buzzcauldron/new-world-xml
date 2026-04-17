@@ -1,7 +1,7 @@
 /**
  * Interactive editing of Page XMLs functionality.
  *
- * @version 2.0.0
+ * @version 1.0.0
  * @author buzzcauldron
  * @copyright Copyright(c) 2025, buzzcauldron
  * Based on nw-page-editor by Mauricio Villegas
@@ -14,6 +14,32 @@
 
 $(window).on('load', function () {
 
+  /// Fade out toast after visibleMs; uses CSS transition + transitionend with timeout fallback.
+  function fadeToastOut( toast, visibleMs ) {
+    visibleMs = typeof visibleMs === 'number' ? visibleMs : 3000;
+    window.setTimeout( function () {
+      var el = toast[0];
+      if ( ! el || ! el.parentNode )
+        return;
+      void el.offsetHeight;
+      toast.addClass( 'file-expected-toast-hide' );
+      var finished = false;
+      var done = function () {
+        if ( finished )
+          return;
+        finished = true;
+        toast.remove();
+      };
+      el.addEventListener( 'transitionend', function onEnd( ev ) {
+        if ( ev.propertyName !== 'opacity' )
+          return;
+        el.removeEventListener( 'transitionend', onEnd );
+        done();
+      } );
+      window.setTimeout( done, 600 );
+    }, visibleMs );
+  }
+
   /// Show a dismissible toast with an optional Undo action.
   /// onUndo() is called if the user clicks Undo within the timeout.
   function showUndoToast( msg, onUndo, durationMs ) {
@@ -21,19 +47,20 @@ $(window).on('load', function () {
     var toast = $('<div class="file-expected-toast undo-toast"></div>');
     var msgSpan = $('<span></span>').text(msg);
     toast.append(msgSpan);
+    var timer = null;
     if ( typeof onUndo === 'function' ) {
       var undoBtn = $('<button class="undo-toast-btn">Undo</button>');
       undoBtn.on('click', function () {
-        clearTimeout(timer);
+        if ( timer )
+          clearTimeout( timer );
         toast.remove();
         onUndo();
       });
       toast.append(' ').append(undoBtn);
     }
     $('body').append(toast);
-    var timer = window.setTimeout( function () {
-      toast.addClass('file-expected-toast-hide');
-      window.setTimeout( function () { toast.remove(); }, 300 );
+    timer = window.setTimeout( function () {
+      fadeToastOut( toast, 0 );
     }, durationMs );
   }
 
@@ -816,13 +843,13 @@ $(window).on('load', function () {
       $('.xpath-select').removeClass('xpath-select');
       filterHistory = localStorage.filterHistory ? JSON.parse(localStorage.filterHistory) : [];
     }
-    $('#filterToggle').addClass('filter-active');
+    $('#filterToggle').addClass('filter-active').attr('aria-expanded', 'true');
     $(textfilter_input).focus();
     return filterMode();
   }
   function clearFilter() {
     textfilter.hide();
-    $('#filterToggle').removeClass('filter-active');
+    $('#filterToggle').removeClass('filter-active').attr('aria-expanded', 'false');
     $('.xpath-select').removeClass('xpath-select');
     return filterMode();
   }
@@ -856,11 +883,11 @@ $(window).on('load', function () {
   function setDrawerOpen( open ) {
     if ( open ) {
       $('#drawer').show();
-      $('#drawerButton').addClass('is-active');
+      $('#drawerButton').addClass('is-active').attr('aria-expanded', 'true');
       document.body.classList.add('drawer-open');
     } else {
       $('#drawer').hide();
-      $('#drawerButton').removeClass('is-active');
+      $('#drawerButton').removeClass('is-active').attr('aria-expanded', 'false');
       document.body.classList.remove('drawer-open');
     }
   }
@@ -1113,7 +1140,7 @@ $(window).on('load', function () {
     function tryLoadReadme(index) {
       if (index >= readmePaths.length) {
         // All paths failed, show error message
-        content.html('<h1>Visual Page Editor</h1><p>README file not found. Please check the installation.</p><p>For documentation, please visit: <a href="https://github.com/buzzcauldron/visual-page-editor" target="_blank">GitHub Repository</a></p>');
+        content.html('<h1>New World XML</h1><p>README file not found. Please check the installation.</p><p>For documentation, please visit: <a href="https://github.com/buzzcauldron/new-world-xml" target="_blank">GitHub Repository</a></p>');
         return;
       }
       
@@ -1165,7 +1192,7 @@ $(window).on('load', function () {
     var paths = [ '../KEYBOARD-SHORTCUTS.md', './KEYBOARD-SHORTCUTS.md', 'KEYBOARD-SHORTCUTS.md' ];
     function tryLoad(index) {
       if ( index >= paths.length ) {
-        content.html('<h1>Keyboard Shortcuts</h1><p>KEYBOARD-SHORTCUTS.md not found.</p><p>See <a href="https://github.com/buzzcauldron/visual-page-editor/blob/main/KEYBOARD-SHORTCUTS.md" target="_blank">KEYBOARD-SHORTCUTS.md</a> on GitHub.</p>');
+        content.html('<h1>Keyboard Shortcuts</h1><p>KEYBOARD-SHORTCUTS.md not found.</p><p>See <a href="https://github.com/buzzcauldron/new-world-xml/blob/main/KEYBOARD-SHORTCUTS.md" target="_blank">KEYBOARD-SHORTCUTS.md</a> on GitHub.</p>');
         $('#readme-modal').addClass('modal-active');
         return;
       }
@@ -1656,25 +1683,26 @@ $(window).on('load', function () {
     pageCanvas.cfg.roundPoints = $(this).children('input').prop('checked');
   }
 
-  /// First-run shortcut hint toast (auto-dismiss, shown once per browser profile) ///
+  /// First-run shortcut hint toast (auto-fade, shown once per browser profile) ///
   if ( ! localStorage.getItem('vpe-shortcuts-hint-seen') ) {
     window.setTimeout( function () {
       var msg = 'Tip: Mod+Enter toggles the menu \u2022 Mod+F filters elements \u2022 Mod+Z undos \u2022 Del removes';
       var toast = $('<div class="file-expected-toast hint-toast"></div>');
       var msgSpan = $('<span></span>').text(msg);
       var dimBtn = $('<button class="undo-toast-btn">Got it</button>');
+      var timer = null;
       dimBtn.on('click', function () {
-        localStorage.setItem('vpe-shortcuts-hint-seen','1');
-        clearTimeout(timer);
-        toast.addClass('file-expected-toast-hide');
-        window.setTimeout( function () { toast.remove(); }, 300 );
-      });
+        localStorage.setItem( 'vpe-shortcuts-hint-seen', '1' );
+        if ( timer )
+          clearTimeout( timer );
+        fadeToastOut( toast, 0 );
+      } );
       toast.append(msgSpan).append(' ').append(dimBtn);
       $('body').append(toast);
-      var timer = window.setTimeout( function () {
-        toast.addClass('file-expected-toast-hide');
-        window.setTimeout( function () { toast.remove(); }, 300 );
-      }, 9000 );
+      timer = window.setTimeout( function () {
+        localStorage.setItem( 'vpe-shortcuts-hint-seen', '1' );
+        fadeToastOut( toast, 0 );
+      }, 7000 );
     }, 1500 );
   }
 } );

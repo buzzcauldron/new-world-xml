@@ -1,7 +1,7 @@
 /**
  * Javascript library for viewing and interactive editing of Page XMLs.
  *
- * @version 2.0.0
+ * @version 1.0.0
  * @author Mauricio Villegas <mauricio_ville@yahoo.com>
  * @copyright Copyright(c) 2015-present, Mauricio Villegas <mauricio_ville@yahoo.com>
  * @license MIT License
@@ -26,7 +26,7 @@ import { createPdfLoader, createTiffLoader } from '../src/page/image-loaders.mjs
   'use strict';
 
   var
-  version = ( typeof window !== 'undefined' && window.PAGE_EDITOR_VERSION ) || '2.0.0';
+  version = ( typeof window !== 'undefined' && window.PAGE_EDITOR_VERSION ) || '1.0.0';
 
   /// Set PageCanvas global object ///
   if ( ! global.PageCanvas )
@@ -441,6 +441,7 @@ import { createPdfLoader, createTiffLoader } from '../src/page/image-loaders.mjs
       if ( orig_xmlns )
         xmlns = orig_xmlns;
       pageStr = pageStr.replace(' xmlns="https://github.com/buzzcauldron/visual-page-editor"', ' xmlns="'+xmlns+'"');
+      pageStr = pageStr.replace(' xmlns="https://github.com/buzzcauldron/new-world-xml"', ' xmlns="'+xmlns+'"');
 
       return pageStr;
     };
@@ -448,7 +449,10 @@ import { createPdfLoader, createTiffLoader } from '../src/page/image-loaders.mjs
 
     self.cfg.importSvgXsltChoose = function ( xml, xslt_import, xslt_import_xml ) {
       var
-      xmlns = $(xml).find('[xmlns]').attr('xmlns'),
+      docEl = xml && xml.documentElement ? xml.documentElement : null,
+      // Default namespace on <PcGts> must be read from the root; jQuery [xmlns] on Document often misses it,
+      // which skipped page2page.xslt for omni:us / PRImA files (nothing matched → broken SVG / missing lines).
+      xmlns = ( docEl && ( docEl.namespaceURI || ( docEl.getAttribute && docEl.getAttribute( 'xmlns' ) ) ) ) || '',
       xslts = [],
       svg_xslt = -1;
 
@@ -1122,8 +1126,17 @@ import { createPdfLoader, createTiffLoader } from '../src/page/image-loaders.mjs
      */
     function createSvgText( elem, selector ) {
       var
-      textequiv = $(document.createElementNS(self.util.sns,'g')).addClass('TextEquiv').appendTo(elem),
-      textElem = $(document.createElementNS(self.util.sns,'text')).addClass('Unicode').appendTo(textequiv);
+      existingTe = $( elem ).children( '.TextEquiv' ).first(),
+      textequiv,
+      textElem;
+      if ( existingTe.length && existingTe.find( '> .Unicode' ).length === 0 ) {
+        textequiv = existingTe;
+        textElem = $( document.createElementNS( self.util.sns, 'text' ) ).addClass( 'Unicode' ).appendTo( textequiv );
+        positionTextNode( textElem[0] );
+        return textElem;
+      }
+      textequiv = $( document.createElementNS( self.util.sns, 'g' ) ).addClass( 'TextEquiv' ).appendTo( elem );
+      textElem = $( document.createElementNS( self.util.sns, 'text' ) ).addClass( 'Unicode' ).appendTo( textequiv );
       positionTextNode( textElem[0] );
       return textElem;
     }

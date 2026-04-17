@@ -1,5 +1,5 @@
 #!/bin/bash
-# Automated code review script for visual-page-editor
+# Automated code review script for new-world-xml
 # Runs linting, syntax checks, and other validations
 
 # Don't exit on error - we want to check all files and report all issues
@@ -53,7 +53,7 @@ report_success() {
     echo -e "${GREEN}✓ $1${NC}"
 }
 
-print_section "Code Review - Visual Page Editor"
+print_section "Code Review - New World XML"
 
 # JavaScript: single source of truth with package.json "lint" (excludes bundle.js, xmllint.js, minified)
 print_section "JavaScript Files"
@@ -225,21 +225,21 @@ fi
 
 # Check file permissions
 print_section "File Permissions"
-if [ -f "bin/visual-page-editor" ] && [ ! -x "bin/visual-page-editor" ]; then
-    count_warning "bin/visual-page-editor is not executable"
+if [ -f "bin/nwxml" ] && [ ! -x "bin/nwxml" ]; then
+    count_warning "bin/nwxml is not executable"
 fi
 
-if [ -f "bin/visual-page-editor.bat" ] && [ -x "bin/visual-page-editor.bat" ]; then
-    count_warning "bin/visual-page-editor.bat should not be executable on Unix systems"
+if [ -f "bin/nwxml.bat" ] && [ -x "bin/nwxml.bat" ]; then
+    count_warning "bin/nwxml.bat should not be executable on Unix systems"
 fi
 
 # NW.js default alignment (launcher, Docker, packaging)
 print_section "NW.js version alignment"
 if [ -x "./scripts/check-nwjs-version-alignment.sh" ]; then
     if ./scripts/check-nwjs-version-alignment.sh 2>&1; then
-        report_success "NW.js defaults match package.json (check-nwjs-version-alignment.sh)"
+        report_success "check-nwjs-version-alignment.sh (NW.js pins or Electron skip)"
     else
-        count_error "NW.js version literals out of sync — run: npm run check:nw-align"
+        count_error "NW.js version literals out of sync — update dependencies.nw and packaging defaults, or use Electron main without NW"
     fi
 else
     count_warning "scripts/check-nwjs-version-alignment.sh missing or not executable"

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Mock installation check script for visual-page-editor
+# Mock installation check script for new-world-xml
 # This script simulates installation and checks for potential errors
 
 set -e
@@ -15,7 +15,7 @@ ERRORS=0
 WARNINGS=0
 
 echo -e "${BLUE}========================================${NC}"
-echo -e "${BLUE}Visual Page Editor - Installation Check${NC}"
+echo -e "${BLUE}New World XML - Installation Check${NC}"
 echo -e "${BLUE}========================================${NC}"
 echo ""
 
@@ -59,7 +59,7 @@ echo -e "${BLUE}Checking required files...${NC}"
 REQUIRED_FILES=(
     "package.json"
     "html/index.html"
-    "bin/visual-page-editor"
+    "bin/nwxml"
     "README.md"
     "LICENSE.md"
 )
@@ -102,7 +102,7 @@ echo -e "${BLUE}Checking shell scripts...${NC}"
 
 # Check shell scripts for syntax
 SHELL_SCRIPTS=(
-    "bin/visual-page-editor"
+    "bin/nwxml"
     "build-macos.sh"
     "build-deb.sh"
     "build-docker.sh"
@@ -127,7 +127,7 @@ echo -e "${BLUE}Checking file permissions...${NC}"
 
 # Check executable permissions
 EXECUTABLE_SCRIPTS=(
-    "bin/visual-page-editor"
+    "bin/nwxml"
     "build-macos.sh"
     "build-deb.sh"
     "build-docker.sh"
@@ -273,19 +273,11 @@ fi
 echo ""
 echo -e "${BLUE}Checking launcher script...${NC}"
 
-if [ -f "$PROJECT_ROOT/bin/visual-page-editor" ]; then
-    # Check for platform detection
-    if grep -q "PLATFORM\|uname" "$PROJECT_ROOT/bin/visual-page-editor"; then
-        report_success "Launcher has platform detection"
+if [ -f "$PROJECT_ROOT/bin/nwxml" ]; then
+    if grep -q 'node_modules/.bin/electron' "$PROJECT_ROOT/bin/nwxml"; then
+        report_success "Launcher invokes Electron"
     else
-        report_warning "Launcher may be missing platform detection"
-    fi
-    
-    # Check for NW.js detection
-    if grep -q "nwjs\|NW.js" "$PROJECT_ROOT/bin/visual-page-editor"; then
-        report_success "Launcher has NW.js detection"
-    else
-        report_warning "Launcher may be missing NW.js detection"
+        report_warning "Launcher may not invoke Electron"
     fi
 fi
 

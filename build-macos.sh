@@ -1,5 +1,5 @@
 #!/bin/bash
-# Build script for creating macOS .app bundle of visual-page-editor with bundled NW.js
+# Build script for creating macOS .app bundle of new-world-xml with bundled NW.js
 
 set -e
 
@@ -7,11 +7,11 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$SCRIPT_DIR"
 
 # Configuration (VERSION from VERSION file or package.json)
-NAME="visual-page-editor"
+NAME="nwxml"
 VERSION="$([ -f "$SCRIPT_DIR/VERSION" ] && cat "$SCRIPT_DIR/VERSION" | tr -d '\n')"
 [ -z "$VERSION" ] && VERSION="$(node -p "require('$SCRIPT_DIR/package.json').version" 2>/dev/null)" || true
 VERSION="${VERSION:-1.0.0}"
-# NW.js version: align with package.json dependencies.nw (same family as ./bin/visual-page-editor).
+# NW.js version: align with package.json dependencies.nw (same family as ./bin/nwxml).
 # Override with NWJS_VERSION=… if you need a different SDK for packaging experiments.
 if [ -z "${NWJS_VERSION:-}" ]; then
     NWJS_VERSION="$(node -p "const p=require('$SCRIPT_DIR/package.json');const n=p.dependencies&&p.dependencies.nw;const m=String(n||'').match(/^(\d+\.\d+\.\d+)/);m?m[1]:''" 2>/dev/null || true)"
@@ -30,7 +30,7 @@ if [ -z "$NWJS_VERSION" ]; then
         NWJS_VERSION="0.44.4"
     fi
 fi
-APP_NAME="Visual Page Editor.app"
+APP_NAME="New World XML.app"
 BUILD_DIR="$PROJECT_ROOT/build-macos"
 APP_DIR="$BUILD_DIR/$APP_NAME"
 CONTENTS_DIR="$APP_DIR/Contents"
@@ -242,11 +242,11 @@ create_info_plist() {
     <key>CFBundleExecutable</key>
     <string>launcher</string>
     <key>CFBundleIdentifier</key>
-    <string>org.visual-page-editor</string>
+    <string>com.buzzcauldron.newworldxml</string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundleName</key>
-    <string>Visual Page Editor</string>
+    <string>New World XML</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
@@ -260,7 +260,7 @@ create_info_plist() {
     <key>NSRequiresAquaSystemAppearance</key>
     <false/>
     <key>NSAppleEventsUsageDescription</key>
-    <string>Visual Page Editor needs to access files to edit Page XML documents.</string>
+    <string>New World XML needs to access files to edit Page XML documents.</string>
 </dict>
 </plist>
 EOF
@@ -270,7 +270,7 @@ EOF
 create_launcher_script() {
     cat > "$MACOS_DIR/launcher" <<'EOF'
 #!/bin/bash
-# Launcher script for Visual Page Editor macOS app
+# Launcher script for New World XML macOS app
 
 APP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 NWJS_BIN="$APP_DIR/MacOS/nwjs"
@@ -294,7 +294,7 @@ EOF
 
 # Main build function
 main() {
-    echo -e "${GREEN}Building macOS .app bundle for Visual Page Editor${NC}"
+    echo -e "${GREEN}Building macOS .app bundle for New World XML${NC}"
     echo "Version: $VERSION"
     echo "NW.js Version: $NWJS_VERSION"
     echo "Process Architecture: $(uname -m)"
@@ -323,7 +323,7 @@ main() {
     echo "  open \"$APP_DIR\""
     echo ""
     echo "To create a DMG (optional):"
-    echo "  hdiutil create -volname \"Visual Page Editor\" -srcfolder \"$APP_DIR\" -ov -format UDZO \"$BUILD_DIR/visual-page-editor-${VERSION}-macos-${ARCH}.dmg\""
+    echo "  hdiutil create -volname \"New World XML\" -srcfolder \"$APP_DIR\" -ov -format UDZO \"$BUILD_DIR/nwxml-${VERSION}-macos-${ARCH}.dmg\""
     
     if [ "$ARCH" = "arm64" ]; then
         echo ""

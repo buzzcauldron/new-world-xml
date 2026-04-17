@@ -42,7 +42,7 @@ if [ "${SKIP_INSTALL:-0}" != "1" ]; then
     --exclude '.DS_Store' \
     "$ROOT/" "$DEST/"
 
-  chmod +x "$DEST/scripts/bootstrap-node.sh" "$DEST/scripts/install-desktop.sh" "$DEST/bin/visual-page-editor" 2>/dev/null || true
+  chmod +x "$DEST/scripts/bootstrap-node.sh" "$DEST/scripts/install-desktop.sh" "$DEST/bin/nwxml" 2>/dev/null || true
 
   echo "==> install-desktop (bootstrap Node if needed + npm install)"
   # Minimal PATH so we do not pick up Node from the parent repo, nvm, or Homebrew — simulates a clean shell.
@@ -65,7 +65,7 @@ echo "==> Smoke tests in $DEST"
     fi
   fi
   test -x "$DEST/node_modules/.bin/nw" || { echo "FAIL: node_modules/.bin/nw missing"; exit 1; }
-  HELP_OUT="$(./bin/visual-page-editor --help 2>&1)" || { echo "FAIL: launcher --help exit"; exit 1; }
+  HELP_OUT="$(./bin/nwxml --help 2>&1)" || { echo "FAIL: launcher --help exit"; exit 1; }
   echo "$HELP_OUT" | grep -q "NW.js" || { echo "FAIL: launcher --help missing NW.js"; exit 1; }
   NW_BIN="$(find "$DEST/node_modules/nw" -path '*/Contents/MacOS/nwjs' -type f 2>/dev/null | head -1)"
   if [ -n "$NW_BIN" ]; then

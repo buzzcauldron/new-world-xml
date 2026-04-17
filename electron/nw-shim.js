@@ -8,9 +8,35 @@
 
 var ipcRenderer = require('electron').ipcRenderer;
 var screen = require('electron').screen;
-var BrowserWindow = require('@electron/remote').BrowserWindow;
+var remote = require('@electron/remote');
+var BrowserWindow = remote.BrowserWindow;
 
+/**
+ * Resolve this renderer's BrowserWindow. Order:
+ * 1) remote.getCurrentWindow() (correct for this webContents)
+ * 2) main-process BrowserWindow.fromWebContents(sender) via sync IPC + fromId
+ * 3) legacy fallbacks (often empty on early Linux/Wayland load — was breaking all UI)
+ */
 function getBrowserWindow() {
+  try {
+    var cur = remote.getCurrentWindow();
+    if (cur) return cur;
+  } catch (e) {
+    console.warn('nw-shim: getCurrentWindow failed', e);
+  }
+  var wid = 0;
+  try {
+    wid = ipcRenderer.sendSync('vpe-nw-shim-window-id');
+  } catch (e2) {
+    console.warn('nw-shim: vpe-nw-shim-window-id failed', e2);
+  }
+  if (typeof wid === 'number' && wid > 0) {
+    try {
+      return BrowserWindow.fromId(wid);
+    } catch (e3) {
+      console.warn('nw-shim: BrowserWindow.fromId failed', e3);
+    }
+  }
   return BrowserWindow.getFocusedWindow() || BrowserWindow.getAllWindows()[0];
 }
 
@@ -141,14 +167,14 @@ globalThis.nw = {
   },
 };
 
-ipcRenderer.on('vpe-second-instance', function (_e, line) {
+ipcRenderer.on('vpe-second-instance', function (_e, paths) {
   openListeners.forEach(function (fn) {
-    fn(line);
+    fn(paths);
   });
 });
 
-ipcRenderer.on('vpe-open-file', function (_e, line) {
+ipcRenderer.on('vpe-open-file', function (_e, paths) {
   openListeners.forEach(function (fn) {
-    fn(line);
+    fn(paths);
   });
 });

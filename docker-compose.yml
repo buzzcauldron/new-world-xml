@@ -5,12 +5,12 @@
 # Compose usage:
 #   1. cp .env.docker.example .env   # then edit DISPLAY for your OS (see comments in .env.docker.example)
 #   2. docker compose build
-#   3. docker compose run --rm visual-page-editor examples/lorem.xml
+#   3. docker compose run --rm nwxml examples/lorem.xml
 #
 # Note: "network_mode: host" is intentionally omitted — it breaks Docker Desktop on macOS/Windows.
 
 services:
-  visual-page-editor:
+  nwxml:
     platform: linux/amd64
     build:
       context: .
@@ -18,8 +18,8 @@ services:
       args:
         NWJS_VERSION: ${NWJS_VERSION:-0.109.1}
         APP_VERSION: ${VPE_VERSION:-0.0.0}
-    image: visual-page-editor:${VPE_VERSION:-latest}
-    container_name: visual-page-editor
+    image: nwxml:${VPE_VERSION:-latest}
+    container_name: nwxml
     environment:
       # Substituted from your shell or from a ".env" file in this directory (see .env.docker.example)
       - DISPLAY=${DISPLAY:-:0}

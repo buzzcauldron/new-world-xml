@@ -1,28 +1,39 @@
 /**
  * Design tokens — light default, dark via prefers-color-scheme.
- * SVG annotation colors stay in page-editor.css (semantic for editing).
+ * HCI: consistent spacing scale, clear focus, semantic accents (ISO 9241 / Nielsen heuristics).
  */
 :root {
   --vpe-font-sans: system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --vpe-font-mono: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, monospace;
   --vpe-radius-sm: 6px;
   --vpe-radius-md: 10px;
+  --vpe-radius-pill: 999px;
   --vpe-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
   --vpe-shadow-md: 0 4px 24px rgba(0, 0, 0, 0.08);
   --vpe-shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.12);
   --vpe-transition: 0.18s ease;
 
+  --vpe-space-1: 4px;
+  --vpe-space-2: 8px;
+  --vpe-space-3: 12px;
+  --vpe-space-4: 16px;
+
   --vpe-bg: #f4f5f7;
   --vpe-bg-elevated: #ffffff;
   --vpe-surface: #ffffff;
+  --vpe-surface-2: #eef0f4;
   --vpe-border: #e2e4e9;
   --vpe-border-strong: #c5c9d4;
   --vpe-text: #1a1d26;
   --vpe-text-muted: #5c6370;
   --vpe-accent: #2563eb;
   --vpe-accent-hover: #1d4ed8;
+  --vpe-accent-muted: rgba(37, 99, 235, 0.12);
+  --vpe-danger: #b91c1c;
+  --vpe-danger-muted: rgba(185, 28, 28, 0.12);
   --vpe-statusbar-bg: #ffffff;
   --vpe-statusbar-border: var(--vpe-border);
+  --vpe-toolbar-cluster-bg: var(--vpe-surface-2);
   --vpe-drawer-bg: #fafbfc;
   --vpe-canvas-bg: #2f3d3d;
   --vpe-input-bg: #ffffff;
@@ -30,8 +41,11 @@
   --vpe-cursor-bg: rgba(0, 0, 0, 0.65);
   --vpe-cursor-fg: #fff;
 
-  --vpe-statusbar-h: 40px;
+  --vpe-statusbar-h: 44px;
   --vpe-bottom-pane-h: 150px;
+  --vpe-touch-min: 40px;
+  --vpe-drawer-pad-y: 8px;
+  --vpe-drawer-pad-x: 12px;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -39,14 +53,19 @@
     --vpe-bg: #12141a;
     --vpe-bg-elevated: #1a1d26;
     --vpe-surface: #1e222b;
+    --vpe-surface-2: #252a35;
     --vpe-border: #2d3340;
     --vpe-border-strong: #3d4554;
     --vpe-text: #e8eaef;
     --vpe-text-muted: #9aa3b2;
     --vpe-accent: #60a5fa;
     --vpe-accent-hover: #93c5fd;
+    --vpe-accent-muted: rgba(96, 165, 250, 0.15);
+    --vpe-danger: #f87171;
+    --vpe-danger-muted: rgba(248, 113, 113, 0.15);
     --vpe-statusbar-bg: #1a1d26;
     --vpe-statusbar-border: var(--vpe-border);
+    --vpe-toolbar-cluster-bg: var(--vpe-surface-2);
     --vpe-drawer-bg: #1e222b;
     --vpe-canvas-bg: #0d1117;
     --vpe-input-bg: #12141a;

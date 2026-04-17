@@ -1,7 +1,7 @@
 /**
- * App functionality for the web edition of visual-page-editor.
+ * App functionality for the web edition of nwxml (New World XML).
  *
- * @version 2.0.0
+ * @version 1.0.0
  * @author Mauricio Villegas <mauricio_ville@yahoo.com>
  * @copyright Copyright(c) 2015-present, Mauricio Villegas <mauricio_ville@yahoo.com>
  * @license MIT License
@@ -113,7 +113,7 @@ $(window).on('load', function () {
     prevNum = fileNum;
     var timestamp = new Date().getTime();
     pageCanvas.loadXmlPage( undefined, window.location.origin+window.location.pathname.replace(/[^/]*$/,'')+loadedFile + '?t=' + timestamp );
-    //$('title').text('visual-page-editor - '+filepath.replace(/.*\//,''));
+    //$('title').text('nwxml - '+filepath.replace(/.*\//,''));
 
     return true;
   }

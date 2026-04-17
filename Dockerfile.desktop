@@ -19,7 +19,7 @@ LABEL maintainer="buzzcauldron <buzzcauldron@users.noreply.github.com>"
 LABEL description="Visual Page Editor - Desktop application container"
 LABEL org.opencontainers.image.title="Visual Page Editor"
 LABEL org.opencontainers.image.version="${APP_VERSION}"
-LABEL org.opencontainers.image.source="https://github.com/buzzcauldron/visual-page-editor"
+LABEL org.opencontainers.image.source="https://github.com/buzzcauldron/new-world-xml"
 
 # Install dependencies
 RUN apt-get update --fix-missing && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
@@ -96,7 +96,7 @@ RUN cat > /app/entrypoint.sh << 'EOF' && chmod +x /app/entrypoint.sh
 #!/bin/bash
 if [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
   echo "Visual Page Editor - Desktop Application"
-  echo "Usage: docker run --rm -it -e DISPLAY=... -v /tmp/.X11-unix:/tmp/.X11-unix -v YOUR_DIR:/workspace visual-page-editor [files...]"
+  echo "Usage: docker run --rm -it -e DISPLAY=... -v /tmp/.X11-unix:/tmp/.X11-unix -v YOUR_DIR:/workspace nwxml [files...]"
   exit 0
 fi
 

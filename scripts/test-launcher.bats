@@ -14,7 +14,7 @@
 sourced_launcher() {
   # Export a version of the launcher with the exec replaced by a no-op
   local launcher
-  launcher="$(cat "$(dirname "$BATS_TEST_DIRNAME")/bin/visual-page-editor")"
+  launcher="$(cat "$(dirname "$BATS_TEST_DIRNAME")/bin/nwxml")"
   # Strip everything from the first `exec $nw` or `exec "$nw"` onwards
   launcher="${launcher%%exec \$nw*}"
   launcher="${launcher%%exec \"\$nw\"*}"

@@ -21,6 +21,17 @@ if ! command -v node >/dev/null 2>&1; then
   exit 1
 fi
 
+# Electron desktop branch: no NW.js SDK in package.json — alignment check does not apply.
+if node -e "
+const p = require('./package.json');
+const nw = p.dependencies && p.dependencies.nw;
+const main = String(p.main || '');
+process.exit(!nw && /electron/i.test(main) ? 0 : 1);
+" 2>/dev/null; then
+  echo "OK: skipping NW.js version alignment (Electron desktop branch; no dependencies.nw)."
+  exit 0
+fi
+
 EXPECTED="$(
   node <<'NODE'
 const p = require('./package.json');
@@ -59,7 +70,6 @@ must_contain() {
   fi
 }
 
-must_contain "bin/visual-page-editor" "NWJS_VERSION=\"\${NWJS_VERSION:-${EXPECTED}}\""
 must_contain "Dockerfile.desktop" "ARG NWJS_VERSION=${EXPECTED}"
 must_contain "docker-compose.yml" "\${NWJS_VERSION:-${EXPECTED}}"
 must_contain "docker-run.sh" "NWJS_VERSION=\"\${NWJS_VERSION:-${EXPECTED}}\""

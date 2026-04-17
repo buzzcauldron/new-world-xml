@@ -39,7 +39,7 @@ tar cf - \
   . | (cd /work && tar xf -)
 
 cd /work
-chmod +x scripts/bootstrap-node.sh bin/visual-page-editor 2>/dev/null || true
+chmod +x scripts/bootstrap-node.sh bin/nwxml 2>/dev/null || true
 
 echo "==> Running scripts/bootstrap-node.sh (downloads portable Node + npm install)..."
 ./scripts/bootstrap-node.sh
@@ -53,7 +53,7 @@ if command -v nw >/dev/null 2>&1; then
   echo "FAIL: nw should not be on PATH" >&2
   exit 1
 fi
-./bin/visual-page-editor --help | grep -q "NW.js" || { echo "FAIL: launcher help"; exit 1; }
+./bin/nwxml --help 2>&1 | grep -qE "NW.js|Electron|Usage" || { echo "FAIL: launcher help"; exit 1; }
 
 echo ""
 echo "DOCKER_INSTALL_TEST_OK — bootstrap + local NW.js work without system Node or nw on PATH."

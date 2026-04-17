@@ -56,7 +56,7 @@ if [ "$START" = 1 ]; then
 fi
 
 echo ""
-echo "Next: npm start   or   ./bin/visual-page-editor [page.xml ...]"
+echo "Next: npm start   or   ./bin/nwxml [page.xml ...]"
 echo "(If portable Node was installed under .tools/, use this same terminal or run ./scripts/install-desktop.sh again before npm.)"
 if [ "$(uname -s)" = "Darwin" ]; then
   echo "macOS tips: INSTALL-MAC.md — simulated clean install: TESTING.md"

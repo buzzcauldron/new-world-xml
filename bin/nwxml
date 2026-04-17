@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# Launcher for Visual Page Editor (Electron). Passes optional file paths to the app.
-# Replaces the previous NW.js binary resolution on this branch.
+# Launcher for nwxml (New World XML, Electron). Passes optional file paths to the app.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
