@@ -2,18 +2,20 @@
 
 A modern visual editor for Page XML files, based on [nw-page-editor](https://github.com/mauvilsa/nw-page-editor).
 
-**Upstream lineage:** [nw-page-editor](https://github.com/mauvilsa/nw-page-editor) → [buzzcauldron/visual-page-editor](https://github.com/buzzcauldron/visual-page-editor). If this copy lives in **your own repo**, update the clone URL in the sections below to your remote.
+**Repository:** [github.com/buzzcauldron/new-world-xml](https://github.com/buzzcauldron/new-world-xml)  
+**Upstream lineage:** [nw-page-editor](https://github.com/mauvilsa/nw-page-editor) → [buzzcauldron/visual-page-editor](https://github.com/buzzcauldron/visual-page-editor).
 
 ### New repository
 
-After you create an **empty** repository on GitHub or GitLab (no README, no license—avoid merge conflicts on first push), from this repo run:
+After you create an **empty** repository on GitHub or GitLab (no README, no license—avoid merge conflicts on first push), **open a terminal in your local clone** (the folder that contains `package.json` and `scripts/`), then run:
 
 ```bash
+cd /path/to/your/clone    # example: cd ~/visual-page-editor  or  cd ~/projects/visual-page-editor
 chmod +x ./scripts/publish-new-repo.sh
 ./scripts/publish-new-repo.sh git@github.com:YOUR_USER/your-repo-name.git new-world-xml
 ```
 
-Use HTTPS or SSH depending on your setup. The script adds a remote named `neworigin` and pushes the branch. Then set the **default branch** and description in the hosting UI.
+Replace `YOUR_USER/your-repo-name` with your GitHub username and repo name. Use HTTPS or SSH depending on your setup. The script adds a remote named `neworigin` and pushes the branch. Then set the **default branch** and description in the hosting UI.
 
 ## Description
 
@@ -31,8 +33,8 @@ Visual Page Editor is an application for viewing and editing ground truth or pre
 ## Quick start (desktop)
 
 ```bash
-git clone https://github.com/buzzcauldron/visual-page-editor.git
-cd visual-page-editor
+git clone https://github.com/buzzcauldron/new-world-xml.git
+cd new-world-xml
 ./scripts/install-desktop.sh
 ./bin/visual-page-editor examples/lorem.xml
 ```
@@ -82,8 +84,8 @@ The `web-app` directory provides a web-based variant for remote use. See that di
 ## Development
 
 ```bash
-git clone https://github.com/buzzcauldron/visual-page-editor.git
-cd visual-page-editor
+git clone https://github.com/buzzcauldron/new-world-xml.git
+cd new-world-xml
 ./scripts/install-desktop.sh   # or: npm install
 ./bin/visual-page-editor
 # or: npm start
@@ -111,6 +113,6 @@ Verification: `npm run verify:electron` checks the local Electron CLI. Other scr
 ## License and links
 
 - **License:** MIT — [LICENSE.md](LICENSE.md)
-- **This project:** [github.com/buzzcauldron/visual-page-editor](https://github.com/buzzcauldron/visual-page-editor)
+- **This project:** [github.com/buzzcauldron/new-world-xml](https://github.com/buzzcauldron/new-world-xml)
 - **Original:** [nw-page-editor](https://github.com/mauvilsa/nw-page-editor) by Mauricio Villegas
 - **Page format:** [omni-us/pageformat](https://github.com/omni-us/pageformat)
