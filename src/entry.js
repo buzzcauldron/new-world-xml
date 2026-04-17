@@ -5,7 +5,7 @@
  *
  * Load order mirrors the original <script> tags in html/index.html:
  *   vendor-loader  → svg-canvas → page-canvas → page-editor
- *   → editor-config → nw-app → nw-winstate
+ *   → editor-config → nw-app → nw-winstate (nw global from NW.js or electron/nw-shim.js)
  */
 
 /* global $, Mousetrap, interact, nw, PDFJS, Tiff, turf, xmllint */

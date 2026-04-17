@@ -19,6 +19,8 @@
   <script type="text/javascript" src="../js/jquery.stylesheet-0.3.7.min.js"></script>
   <script type="text/javascript" src="../js/interact-1.3.4.min.js"></script>
   <script type="text/javascript" src="../js/mousetrap-1.6.2.min.js"></script>
+  <!-- Electron: NW.js API shim (must load before bundle). No-op when not running under Electron. -->
+  <script type="text/javascript">try{ if(typeof process!=='undefined'&&process.versions&&process.versions.electron) { require('../electron/nw-shim.js'); } }catch(e){ console.error(e); }</script>
   <!-- marked and xmllint are loaded lazily: marked on first Readme/Shortcuts open, xmllint on first Validate click -->
   <script type="text/javascript" src="../js/bundle.js"></script>
 </head>

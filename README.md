@@ -12,7 +12,7 @@ Visual Page Editor is an application for viewing and editing ground truth or pre
 
 - Visual editing of Page XML with live feedback
 - Supports omni:us Pages Format, PRImA Page XML, ALTO v2/v3, TET, Poppler
-- Desktop app (NW.js) and web-app variant
+- Desktop app (**Electron** on branch `feat/electron-shell`; legacy builds used NW.js) and web-app variant
 - Keyboard shortcuts (see [KEYBOARD-SHORTCUTS.md](KEYBOARD-SHORTCUTS.md))
 
 ---
@@ -26,7 +26,7 @@ cd visual-page-editor
 ./bin/visual-page-editor examples/lorem.xml
 ```
 
-That installs dependencies (and bootstraps Node into `.tools/` if you do not have Node 18+), pulls the NW.js SDK via npm, then opens the sample Page XML. You do not need a global `nw` on `PATH`.
+That installs dependencies (and bootstraps Node into `.tools/` if you do not have Node 18+), then opens the sample Page XML with the local **Electron** binary from `npm` (`node_modules/.bin/electron`). No separate native SDK download (unlike the old NW.js flow).
 
 **Windows (PowerShell):** `.\scripts\install-desktop.ps1` then `.\bin\visual-page-editor.ps1 examples\lorem.xml`
 
@@ -46,7 +46,7 @@ More detail — Docker desktop image, tests, packaging, Apple Silicon notes: [RE
 ./docker-run.sh examples/lorem.xml
 ```
 
-No Node or NW.js is required on the host—only Docker (and XQuartz on macOS for a visible window). Full prerequisites, Compose, and manual `docker` commands: **[README-DOCKER.md](README-DOCKER.md)**.
+No Node is required on the host for the Docker workflow—only Docker (and XQuartz on macOS for a visible window). *Note:* existing Dockerfiles may still reference NW.js until updated for Electron. See **[README-DOCKER.md](README-DOCKER.md)**.
 
 ---
 
@@ -78,14 +78,24 @@ cd visual-page-editor
 # or: npm start
 ```
 
-Verification scripts (`verify:nw`, Docker bootstrap test, clean macOS copy): [TESTING.md](TESTING.md). The launcher uses `NWJS_VERSION` (default **0.109.1**, aligned with `nw@0.109.1-sdk` in `package.json`).
+Verification: `npm run verify:electron` checks the local Electron CLI. Other scripts in [TESTING.md](TESTING.md) may still mention NW.js until docs are refreshed.
 
 **Testing:**
-- `npm run test:unit` — vitest unit tests (Point2f, PanZoom, etc.)
-- `npm run test:launcher` — bats launcher tests (20 tests across platforms)
+- `npm run test:unit` — vitest unit tests (Point2f, golden Page XML, etc.)
+- `npm run test:launcher` — Electron launcher smoke checks (`scripts/test-electron-launcher.sh`)
 - `npm run review` / `./scripts/code-review.sh` — code review; see [CODE_REVIEW.md](CODE_REVIEW.md)
 
 **Build:** `npm run build` bundles `src/entry.js` → `js/bundle.js` via esbuild (runs automatically on `npm install` via the `prepare` script). Use `npm run build:watch` during development.
+
+**Packaged desktop installers:** `npm run dist` (or `npm run dist:dir` for an unpacked directory) runs **electron-builder** after `npm run build`. Output goes to `dist/` (gitignored).
+
+### Migration / rewrite (scope and install simplification)
+
+- Parity checklist: [docs/MIGRATION-PARITY.md](docs/MIGRATION-PARITY.md)
+- Desktop shell choice (Electron vs Tauri vs web-first): [docs/DESKTOP-SHELL-CHOICE.md](docs/DESKTOP-SHELL-CHOICE.md)
+- NW.js API audit: [docs/NWJS-AUDIT.md](docs/NWJS-AUDIT.md)
+- CI, installers, deprecation: [docs/CI-INSTALLERS.md](docs/CI-INSTALLERS.md)
+- Branch strategy and build gates: [docs/BRANCH-BUILD.md](docs/BRANCH-BUILD.md)
 
 ## License and links
 

@@ -36,38 +36,19 @@ prepend_portable_node_path() {
 }
 prepend_portable_node_path
 
-verify_nwjs() {
-  if [ ! -e "$ROOT/node_modules/.bin/nw" ]; then
-    echo "error: node_modules/.bin/nw missing — npm package nw did not install correctly." >&2
+verify_electron() {
+  if [ ! -e "$ROOT/node_modules/.bin/electron" ]; then
+    echo "error: node_modules/.bin/electron missing — run npm install." >&2
     echo "  Try: rm -rf node_modules && ./scripts/install-desktop.sh" >&2
     exit 1
   fi
-  # postinstall should make the wrapper executable on Unix
-  if [ ! -x "$ROOT/node_modules/.bin/nw" ] && [ -f "$ROOT/node_modules/.bin/nw" ]; then
-    chmod +x "$ROOT/node_modules/.bin/nw" 2>/dev/null || true
+  if [ ! -x "$ROOT/node_modules/.bin/electron" ] && [ -f "$ROOT/node_modules/.bin/electron" ]; then
+    chmod +x "$ROOT/node_modules/.bin/electron" 2>/dev/null || true
   fi
-  # macOS: the npm postinstall must extract nwjs.app; missing binary causes spawn ENOENT from cli.js
-  if [ "$(uname -s)" = "Darwin" ]; then
-    NW_MACHO="$(find "$ROOT/node_modules/nw" -path '*/nwjs.app/Contents/MacOS/nwjs' -type f 2>/dev/null | head -1)"
-    if [ -z "$NW_MACHO" ] || [ ! -f "$NW_MACHO" ]; then
-      echo "error: NW.js app bundle incomplete under node_modules/nw (expected .../nwjs.app/Contents/MacOS/nwjs)." >&2
-      echo "  Fix: rm -rf node_modules/nw && npm install" >&2
-      echo "  or:  rm -rf node_modules && ./scripts/install-desktop.sh" >&2
-      exit 1
-    fi
-    echo "==> NW.js SDK on disk: $NW_MACHO"
-    if sysctl -n hw.optional.arm64 2>/dev/null | grep -q "1"; then
-      if ! file "$NW_MACHO" 2>/dev/null | grep -qi "arm64"; then
-        echo "error: NW.js binary is not arm64 but this Mac is Apple Silicon — crashes are likely under Rosetta/x64." >&2
-        echo "  Fix: rm -rf node_modules/nw && npm install   (or ./scripts/install-desktop.sh)" >&2
-        exit 1
-      fi
-    fi
-  fi
-  echo "==> NW.js OK: local SDK via npm (node_modules/.bin/nw)."
+  echo "==> Electron OK: node_modules/.bin/electron"
 }
 
-verify_nwjs
+verify_electron
 
 if [ "$START" = 1 ]; then
   echo "==> Starting app..."

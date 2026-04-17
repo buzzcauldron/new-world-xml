@@ -3,8 +3,8 @@ name: Code Review
 on:
   push:
     branches: [ main, develop, rebuild ]
+  # All PRs (any base branch), including long-lived integration branches for migration work
   pull_request:
-    branches: [ main, develop, rebuild ]
 
 jobs:
   code-review:
